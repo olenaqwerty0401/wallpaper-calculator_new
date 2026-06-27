@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Калькулятор шпалер</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+  :root{--bg:#F7F5F2;--surface:#FFFFFF;--border:#E4E0DA;--text:#1A1714;--muted:#7A746E;--accent:#C45C2A;--accent-l:#F3EBE5;--info:#2A6FC4;--info-l:#E5EEF3;--success:#2A7A4A;--success-l:#E5F3EC;--danger:#B53030;--radius:8px;--shadow:0 1px 4px rgba(0,0,0,.07),0 0 0 0.5px rgba(0,0,0,.06)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;font-size:14px;background:var(--bg);color:var(--text);min-height:100vh}
+  header{background:var(--text);color:#fff;padding:18px 24px;display:flex;align-items:center;gap:12px}
+  header .logo{font-size:22px;line-height:1}header h1{font-size:16px;font-weight:500}header span{font-size:12px;color:rgba(255,255,255,.45)}
+  .demo-note{background:var(--success-l);color:var(--success);font-size:12px;padding:8px 24px;line-height:1.5}
+  .layout{max-width:920px;margin:0 auto;padding:24px 16px 48px;display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  .col{display:flex;flex-direction:column;gap:16px}
+  .card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+  .card-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:14px;display:flex;gap:8px;align-items:center}
+  .auto-tag{font-size:10px;font-weight:500;color:var(--success);text-transform:none;letter-spacing:0}
+  label.fl{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+  input[type=number],input[type=url]{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:var(--bg);color:var(--text)}
+  input[type=number]{font-family:'DM Mono',monospace}
+  input:focus{outline:none;border-color:var(--accent);background:#fff}
+  select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg);color:var(--text);cursor:pointer}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .iu{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:end}.iu select{width:70px;padding:8px 6px}
+  .url-hint{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5}
+  .url-row{display:flex;gap:8px}.url-row input{flex:1;font-size:13px}
+  .btn-parse{padding:8px 14px;background:var(--info);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap}
+  .btn-parse:hover{background:#1d5ca8}.btn-parse:disabled{background:#b0bec5}
+  .parse-msg{font-size:12px;margin-top:8px;min-height:16px;line-height:1.5}
+  .parse-msg.ok{color:var(--success)}.parse-msg.err{color:var(--danger)}.parse-msg.loading{color:var(--muted)}
+  .parse-name{font-weight:500;font-size:13px;margin-top:6px;display:none}
+  .field-wrap{position:relative}
+  .field-wrap .dot{width:7px;height:7px;border-radius:50%;background:var(--success);position:absolute;right:-11px;top:50%;transform:translateY(-50%);display:none}
+  .field-wrap.auto .dot{display:block}.field-wrap.auto input{border-color:#a0cfb5;background:#f4fbf7}
+  .wall-block{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-bottom:8px}
+  .wall-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .wall-num{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase}
+  .btn-remove{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px}.btn-remove:hover{color:var(--danger)}
+  .btn-add{display:flex;align-items:center;gap:6px;background:none;border:1.5px dashed var(--border);border-radius:6px;width:100%;padding:9px;font-size:13px;color:var(--muted);cursor:pointer;justify-content:center}
+  .btn-add:hover{border-color:var(--accent);color:var(--accent)}
+  .tab-group{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+  .tab-btn{padding:8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:13px;cursor:pointer;text-align:center;color:var(--muted)}
+  .tab-btn.active{background:var(--text);color:#fff;border-color:var(--text);font-weight:500}
+  .calc-btn{width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:500;cursor:pointer}
+  .calc-btn:hover{background:#A84B22}
+  .result-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;display:none;grid-column:1/-1}
+  .result-top{display:flex;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+  .rolls-display{display:flex;align-items:baseline;gap:8px}
+  .rolls-num{font-size:48px;font-weight:600;font-family:'DM Mono',monospace;color:var(--accent);line-height:1}
+  .rolls-label{font-size:16px;color:var(--muted)}
+  .result-badge{background:var(--info-l);color:var(--info);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:500;height:fit-content}
+  .walls-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:16px}
+  .wall-chip{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:12px;line-height:1.6}
+  .wall-chip strong{font-size:11px;color:var(--muted);display:block}
+  .strips-tag{display:inline-block;margin-top:4px;background:var(--accent-l);color:var(--accent);border-radius:4px;padding:1px 6px;font-size:11px;font-weight:500}
+  details{border:1px solid var(--border);border-radius:6px;overflow:hidden}
+  summary{padding:10px 14px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;background:var(--bg);list-style:none;display:flex;gap:6px;align-items:center}
+  summary::before{content:'▶';font-size:9px}details[open] summary::before{content:'▼'}
+  details pre{font-family:'DM Mono',monospace;font-size:12px;background:var(--surface);padding:12px 14px;white-space:pre-wrap;line-height:1.7;border-top:1px solid var(--border)}
+  .error{color:var(--danger);font-size:12px;min-height:18px;padding:4px 16px}
+  @media(max-width:640px){.layout{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="logo">🏠</div><div><h1>Калькулятор шпалер</h1><span>Straight Match · Half Drop · авто-заповнення по посиланню</span></div></header>
+<div class="demo-note">Встав посилання на товар (York, Wallpaper Direct тощо) → «Заповнити». Сайти із сильним захистом можуть не відкритись — тоді заповни вручну.</div>
+
+<div class="layout">
+  <div class="col">
+    <div class="card">
+      <div class="card-title">Шпалери — посилання</div>
+      <div class="url-hint">Встав посилання на товар → параметри заповняться автоматично</div>
+      <div class="url-row">
+        <input type="url" id="wallpaperUrl" placeholder="https://yorkwallcoverings.com/..." onkeydown="if(event.key==='Enter')parseUrl()">
+        <button class="btn-parse" id="parseBtn" onclick="parseUrl()">Заповнити</button>
+      </div>
+      <div class="parse-msg" id="parseMsg"></div>
+      <div class="parse-name" id="parseName"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Стінки</div>
+      <div id="wallsContainer"></div>
+      <button class="btn-add" onclick="addWall()">+ Додати стінку</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Параметри рулону</div>
+      <div class="row2">
+        <div><label class="fl">Ширина рулону</label><div class="iu"><div class="field-wrap" id="fw-rollWidth"><input type="number" id="rollWidth" min="0" step="0.1" placeholder="21" oninput="clearAuto('fw-rollWidth')"><span class="dot"></span></div><select id="rollWidthUnit"><option value="in">інч</option><option value="ft">фут</option><option value="cm">см</option></select></div></div>
+        <div><label class="fl">Довжина рулону</label><div class="iu"><div class="field-wrap" id="fw-rollLength"><input type="number" id="rollLength" min="0" step="0.1" placeholder="33" oninput="clearAuto('fw-rollLength')"><span class="dot"></span></div><select id="rollLengthUnit"><option value="ft">фут</option><option value="in">інч</option><option value="m">метр</option></select></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card">
+      <div class="card-title">Репіт (раппорт)</div>
+      <div class="tab-group">
+        <button class="tab-btn active" id="tab-straight" onclick="setRepeatType('straight')">Straight Match</button>
+        <button class="tab-btn" id="tab-halfdrop" onclick="setRepeatType('halfdrop')">Half Drop</button>
+      </div>
+      <label class="fl">Розмір репіту (інчі)</label>
+      <div class="field-wrap" id="fw-repeat" style="margin-right:12px"><input type="number" id="repeat" min="0" step="0.1" placeholder="0 — без репіту" oninput="clearAuto('fw-repeat')"><span class="dot"></span></div>
+    </div>
+    <button class="calc-btn" onclick="runCalc()">Розрахувати</button>
+  </div>
+
+  <div class="result-card" id="result">
+    <div class="result-top">
+      <div><div class="rolls-display"><span class="rolls-num" id="rollsNum">0</span><span class="rolls-label" id="rollsLabel">рулонів</span></div><div style="font-size:12px;color:var(--muted);margin-top:4px" id="stripsTotal"></div></div>
+      <div id="typeBadge" class="result-badge"></div>
+    </div>
+    <div class="walls-grid" id="wallsGrid"></div>
+    <details><summary>Детальний розкрій</summary><pre id="detailPre"></pre></details>
+  </div>
+</div>
+<div class="error" id="error"></div>
+
+<script>
+var wallCount=0,wallIds=[],repeatType='straight';
+var RELAYS=[
+  function(u){return 'https://api.allorigins.win/raw?url='+encodeURIComponent(u)},
+  function(u){return 'https://corsproxy.io/?url='+encodeURIComponent(u)},
+  function(u){return 'https://thingproxy.freeboard.io/fetch/'+u}
+];
+async function fetchHtml(url){
+  for(var i=0;i<RELAYS.length;i++){
+    try{var r=await fetch(RELAYS[i](url),{headers:{'Accept':'text/html'}});if(r.ok){var t=await r.text();if(t&&t.length>500)return t;}}catch(e){}
+  }
+  return null;
+}
+function numFrom(t){var m=String(t).match(/(\d+(?:[.,]\d+)?)/);return m?parseFloat(m[1].replace(',','.')):null}
+function unitIn(t){t=String(t).toLowerCase();if(t.includes('cm')||t.includes('см'))return'cm';if(t.includes('mm')||t.includes('мм'))return'mm';if(t.includes('ft')||t.includes('feet')||t.includes("'")||t.includes('фут'))return'ft';if((t.includes('meter')||t.includes('metre')||t.includes('метр')||/\bm\b/.test(t))&&!t.includes('cm')&&!t.includes('mm'))return'm';if(t.includes('"')||t.includes('inch')||t.includes('in')||t.includes('”')||t.includes('дюйм'))return'in';return''}
+function cToIn(v,u){if(u==='cm')return Math.round(v/2.54*100)/100;if(u==='mm')return Math.round(v/25.4*100)/100;if(u==='ft')return Math.round(v*12*100)/100;return v}
+function detectMatch(t){t=String(t).toLowerCase();if(['half drop','half-drop','halfdrop','drop match','drop repeat','offset match','offset',' drop'].some(function(x){return t.includes(x)}))return'halfdrop';if(['straight match','straight-match','straight across','straight','set match','random match','random','free match','no match','free'].some(function(x){return t.includes(x)}))return'straight';return null}
+function extractPairs(doc){
+  var pairs={};
+  function add(k,v){k=k.replace(/\s+/g,' ').trim().toLowerCase();v=v.replace(/\s+/g,' ').trim();if(k&&v&&k.length<50&&!(k in pairs))pairs[k]=v}
+  doc.querySelectorAll('tr').forEach(function(tr){var c=tr.querySelectorAll('td,th');if(c.length===2)add(c[0].textContent,c[1].textContent)});
+  doc.querySelectorAll('dl').forEach(function(dl){var dts=dl.querySelectorAll('dt'),dds=dl.querySelectorAll('dd');for(var i=0;i<Math.min(dts.length,dds.length);i++)add(dts[i].textContent,dds[i].textContent)});
+  doc.querySelectorAll('li,p,div,span').forEach(function(el){var t=el.textContent.replace(/\s+/g,' ').trim();if(t.includes(':')&&t.length<120){var i=t.indexOf(':');var k=t.slice(0,i),v=t.slice(i+1);if(k.length>2&&k.length<40&&v.trim())add(k,v)}});
+  return pairs;
+}
+function findValue(pairs,include,exclude){exclude=exclude||[];for(var label in pairs){if(include.some(function(k){return label.includes(k)})&&!exclude.some(function(x){return label.includes(x)}))return pairs[label]}return null}
+function parseDoc(doc,url){
+  var res={},pairs=extractPairs(doc);
+  var og=doc.querySelector('meta[property="og:title"]');
+  if(og)res.productName=(og.getAttribute('content')||'').slice(0,80);else if(doc.title)res.productName=doc.title.slice(0,80);
+  var v=findValue(pairs,['roll width','width','ширина'],['untrimmed','repeat','image']);
+  if(v){var n=numFrom(v);if(n){res.width=cToIn(n,unitIn(v)||'in');res.widthUnit='in'}}
+  v=findValue(pairs,['roll length','length','довжина'],['repeat','image']);
+  if(v){var n2=numFrom(v);if(n2&&n2<500){var u=unitIn(v);if(u==='ft'){res.length=n2;res.lengthUnit='ft'}else if(u==='m'){res.length=n2;res.lengthUnit='m'}else if(u==='in'){res.length=Math.round(n2/12*100)/100;res.lengthUnit='ft'}else{res.length=n2;res.lengthUnit='ft'}}}
+  v=findValue(pairs,['pattern repeat','vertical repeat','design repeat','repeat','раппорт','репіт']);
+  if(v){var n3=numFrom(v);res.repeat=(n3!==null)?cToIn(n3,unitIn(v)||'in'):0;var mt=detectMatch(v);if(mt)res.matchType=mt}
+  if(!res.matchType){v=findValue(pairs,['match','pattern match','стикування','збіг']);if(v){var mt2=detectMatch(v);if(mt2)res.matchType=mt2}}
+  if((url||'').includes('yorkwallcoverings')){var md=doc.querySelector('meta[name="description"]')||doc.querySelector('meta[property="og:description"]');if(md){var c=md.getAttribute('content')||'';var m=c.match(/(\d+(?:\.\d+)?)\s*inch(?:es)?\s*wide/i);if(m){res.width=parseFloat(m[1]);res.widthUnit='in'}m=c.match(/(\d+(?:\.\d+)?)\s*feet\s*long/i);if(m){res.length=parseFloat(m[1]);res.lengthUnit='ft'}}}
+  var full=doc.body?doc.body.textContent.toLowerCase():'';
+  if(full.includes('grasscloth')||full.includes('grass cloth')){if(!('repeat'in res))res.repeat=0;if(!('matchType'in res))res.matchType='straight'}
+  return res;
+}
+async function parseUrl(){
+  var url=document.getElementById('wallpaperUrl').value.trim();
+  if(!url){showMsg('Введи посилання','err');return}
+  if(!url.startsWith('http'))url='https://'+url;
+  var btn=document.getElementById('parseBtn');btn.disabled=true;btn.textContent='...';
+  showMsg('Читаю сторінку…','loading');document.getElementById('parseName').style.display='none';
+  try{
+    var html=await fetchHtml(url);
+    if(!html){showMsg('Сайт не відкрився (захист/блокування). Заповни вручну.','err');btn.disabled=false;btn.textContent='Заповнити';return}
+    var doc=new DOMParser().parseFromString(html,'text/html');
+    var data=parseDoc(doc,url);var filled=[];
+    if(data.width){setField('rollWidth',data.width,'rollWidthUnit',data.widthUnit||'in','fw-rollWidth');filled.push('ширина')}
+    if(data.length){setField('rollLength',data.length,'rollLengthUnit',data.lengthUnit||'ft','fw-rollLength');filled.push('довжина')}
+    if(data.repeat!=null){document.getElementById('repeat').value=data.repeat;document.getElementById('fw-repeat').classList.add('auto');filled.push('репіт')}
+    if(data.matchType){setRepeatType(data.matchType);filled.push('тип')}
+    if(data.productName){var pn=document.getElementById('parseName');pn.textContent='📦 '+data.productName;pn.style.display='block'}
+    if(filled.length)showMsg('✓ Заповнено: '+filled.join(', ')+'. Можна змінити вручну.','ok');
+    else showMsg('Параметри не знайдено на сторінці. Заповни вручну.','err');
+  }catch(e){showMsg('Помилка: '+e.message+'. Заповни вручну.','err')}
+  btn.disabled=false;btn.textContent='Заповнити';
+}
+function showMsg(t,c){var el=document.getElementById('parseMsg');el.textContent=t;el.className='parse-msg '+(c||'')}
+function setField(id,v,sid,u,fw){document.getElementById(id).value=v;var s=document.getElementById(sid);for(var i=0;i<s.options.length;i++){if(s.options[i].value===u){s.selectedIndex=i;break}}document.getElementById(fw).classList.add('auto')}
+function clearAuto(fw){document.getElementById(fw).classList.remove('auto')}
+function toIn(v,u){if(u==='in')return v;if(u==='ft')return v*12;if(u==='cm')return v/2.54;if(u==='m')return v*39.3701;return v}
+function fromIn(v,u){if(u==='in')return v;if(u==='ft')return v/12;if(u==='cm')return v*2.54;if(u==='m')return v/39.3701;return v}
+function r1(v){return Math.round(v*10)/10}function r2(v){return Math.round(v*100)/100}
+function setRepeatType(t){repeatType=t;document.getElementById('tab-straight').classList.toggle('active',t==='straight');document.getElementById('tab-halfdrop').classList.toggle('active',t==='halfdrop')}
+function addWall(){wallCount++;var id=wallCount;wallIds.push(id);var div=document.createElement('div');div.className='wall-block';div.id='wall-'+id;div.innerHTML='<div class="wall-header"><span class="wall-num">Стінка '+id+'</span><button class="btn-remove" onclick="removeWall('+id+')">×</button></div><div class="row2"><div><label class="fl">Ширина</label><div class="iu"><input type="number" id="w'+id+'_w" min="0" step="0.1" placeholder="ширина"><select id="w'+id+'_wu" data-prev="in" onchange="convertField(\'w'+id+'_w\',this)"><option value="in">інч</option><option value="ft">фут</option></select></div></div><div><label class="fl">Висота</label><div class="iu"><input type="number" id="w'+id+'_h" min="0" step="0.1" placeholder="висота"><select id="w'+id+'_hu" data-prev="in" onchange="convertField(\'w'+id+'_h\',this)"><option value="in">інч</option><option value="ft">фут</option></select></div></div></div>';document.getElementById('wallsContainer').appendChild(div)}
+function removeWall(id){var el=document.getElementById('wall-'+id);if(el)el.remove();wallIds=wallIds.filter(function(x){return x!==id})}
+function convertField(id,sel){var inp=document.getElementById(id);var val=parseFloat(inp.value);var prev=sel.dataset.prev;var next=sel.value;if(val&&prev&&prev!==next)inp.value=r2(fromIn(toIn(val,prev),next));sel.dataset.prev=next}
+function plural(n,o,f,m){var a=n%10,c=n%100;if(a===1&&c!==11)return o;if(a>=2&&a<=4&&(c<10||c>=20))return f;return m}
+function runCalc(){
+  document.getElementById('error').textContent='';document.getElementById('result').style.display='none';
+  var rwRaw=parseFloat(document.getElementById('rollWidth').value),rlRaw=parseFloat(document.getElementById('rollLength').value);
+  if(!rwRaw||!rlRaw){document.getElementById('error').textContent='Вкажи параметри рулону.';return}
+  var rollWidth=toIn(rwRaw,document.getElementById('rollWidthUnit').value),rollLength=toIn(rlRaw,document.getElementById('rollLengthUnit').value),repeat=parseFloat(document.getElementById('repeat').value)||0;
+  var walls=[];
+  wallIds.forEach(function(id){if(!document.getElementById('wall-'+id))return;var wRaw=document.getElementById('w'+id+'_w').value,hRaw=document.getElementById('w'+id+'_h').value,wUnit=document.getElementById('w'+id+'_wu').value,hUnit=document.getElementById('w'+id+'_hu').value;if(parseFloat(wRaw)>0&&parseFloat(hRaw)>0)walls.push({index:id,width:toIn(parseFloat(wRaw),wUnit),height:toIn(parseFloat(hRaw),hUnit),wRaw:wRaw,hRaw:hRaw,wUnit:wUnit,hUnit:hUnit})});
+  if(!walls.length){document.getElementById('error').textContent='Додай хоча б одну стінку.';return}
+  var res=repeatType==='straight'?calcStraight(walls,rollWidth,rollLength,repeat):calcHalfDrop(walls,rollWidth,rollLength,repeat);
+  var grid='';walls.forEach(function(w){var strips=Math.ceil(w.width/rollWidth);grid+='<div class="wall-chip"><strong>Стінка '+w.index+'</strong>'+w.wRaw+' '+w.wUnit+' × '+w.hRaw+' '+w.hUnit+'<br><span style="font-size:11px;color:var(--muted)">'+r1(w.width)+'" × '+r1(w.height)+'"</span><div><span class="strips-tag">'+strips+' смуг</span></div></div>'});
+  document.getElementById('rollsNum').textContent=res.rolls;document.getElementById('rollsLabel').textContent=plural(res.rolls,'рулон','рулони','рулонів');document.getElementById('stripsTotal').textContent=res.totalStrips+' смуг всього';document.getElementById('typeBadge').textContent=repeatType==='straight'?'Straight Match':'Half Drop';document.getElementById('wallsGrid').innerHTML=grid;document.getElementById('detailPre').textContent=res.details;document.getElementById('result').style.display='block';
+}
+function calcStraight(walls,rollWidth,rollLength,repeat){var lines=[],totalStrips=0,ppr=repeat>0?Math.floor(rollLength/repeat):null;lines.push('── Straight Match ──');if(repeat>0)lines.push('Патернів у рулоні: floor('+r1(rollLength)+' / '+repeat+') = '+ppr);lines.push('');var allStrips=[];walls.forEach(function(w){var strips=Math.ceil(w.width/rollWidth);totalStrips+=strips;var pps=repeat>0?Math.ceil(w.height/repeat):null;if(repeat>0)lines.push('Стінка '+w.index+': висота '+r1(w.height)+'" / '+repeat+'" = ceil → '+pps+' патернів  ('+strips+' смуг)');else lines.push('Стінка '+w.index+': висота '+r1(w.height)+'"  ('+strips+' смуг, без репіту)');for(var s=0;s<strips;s++)allStrips.push({wall:w.index,num:s+1,pps:pps,height:w.height})});lines.push('');lines.push('── Розкрій по рулонах ──');var rolls=0,remP=0,remI=0,cur=0,log=[];allStrips.forEach(function(s){if(repeat>0){if(remP<s.pps){if(rolls>0)log.push('  Рулон '+rolls+': '+cur+' смуг, залишок '+remP+' патернів');rolls++;remP=ppr;cur=0}remP-=s.pps;cur++;log.push('  Стінка '+s.wall+' смуга '+s.num+': −'+s.pps+' патернів, залишок '+remP)}else{if(remI<s.height){if(rolls>0)log.push('  Рулон '+rolls+': '+cur+' смуг, залишок '+r1(remI)+'"');rolls++;remI=rollLength;cur=0}remI-=s.height;cur++;log.push('  Стінка '+s.wall+' смуга '+s.num+': −'+r1(s.height)+'", залишок '+r1(remI)+'"')}});if(rolls>0){if(repeat>0)log.push('  Рулон '+rolls+': '+cur+' смуг, залишок '+remP+' патернів');else log.push('  Рулон '+rolls+': '+cur+' смуг, залишок '+r1(remI)+'"')}log.forEach(function(l){lines.push(l)});lines.push('');lines.push('━━━━━━━━━━━━━━━━━━━');lines.push('Рулонів потрібно: '+rolls);return{rolls:rolls,totalStrips:totalStrips,details:lines.join('\n')}}
+function calcHalfDrop(walls,rollWidth,rollLength,repeat){var lines=[],totalStrips=0;lines.push('── Half Drop ──');lines.push('Непарні смуги: висота стінки');lines.push('Парні смуги:   висота стінки + '+repeat+'"');lines.push('');var allStrips=[];walls.forEach(function(w){var strips=Math.ceil(w.width/rollWidth);totalStrips+=strips;for(var s=0;s<strips;s++){var gi=allStrips.length+1,isOdd=gi%2===1,len=isOdd?w.height:w.height+repeat;allStrips.push({wall:w.index,num:s+1,gi:gi,isOdd:isOdd,len:len,wallH:w.height})}});lines.push('Довжини смуг:');allStrips.forEach(function(s){lines.push('  #'+s.gi+' (стінка '+s.wall+', смуга '+s.num+'): '+r1(s.wallH)+'"'+(s.isOdd?'':' + '+repeat+'"')+' → '+r1(s.len)+'"')});lines.push('');lines.push('── Розкрій по рулонах ──');var rolls=0,rem=0,cur=0,log=[];allStrips.forEach(function(s){if(rem<s.len){if(rolls>0)log.push('  Рулон '+rolls+': '+cur+' смуг, залишок '+r1(rem)+'"');rolls++;rem=rollLength;cur=0}rem-=s.len;cur++;log.push('  #'+s.gi+' стінка '+s.wall+' смуга '+s.num+' ('+r1(s.len)+'"): залишок '+r1(rem)+'"')});if(rolls>0)log.push('  Рулон '+rolls+': '+cur+' смуг, залишок '+r1(rem)+'"');log.forEach(function(l){lines.push(l)});lines.push('');lines.push('━━━━━━━━━━━━━━━━━━━');lines.push('Рулонів потрібно: '+rolls);return{rolls:rolls,totalStrips:totalStrips,details:lines.join('\n')}}
+addWall();addWall();addWall();addWall();
+</script>
+</body>
+</html>
