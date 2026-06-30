@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Калькулятор шпалер</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg:       #F7F5F2;
+    --surface:  #FFFFFF;
+    --border:   #E4E0DA;
+    --text:     #1A1714;
+    --muted:    #7A746E;
+    --accent:   #C45C2A;
+    --accent-l: #F3EBE5;
+    --info:     #2A6FC4;
+    --info-l:   #E5EEF3;
+    --success:  #2A7A4A;
+    --success-l:#E5F3EC;
+    --danger:   #B53030;
+    --danger-l: #F7E5E5;
+    --radius:   8px;
+    --shadow:   0 1px 4px rgba(0,0,0,.07), 0 0 0 0.5px rgba(0,0,0,.06);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--text);
+    color: #fff;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  header .logo {
+    font-size: 22px;
+    line-height: 1;
+  }
+  header h1 {
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: -0.2px;
+  }
+  header span {
+    font-size: 12px;
+    color: rgba(255,255,255,.45);
+    font-weight: 300;
+  }
+
+  /* ── Layout ── */
+  .layout {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  .col-left  { display: flex; flex-direction: column; gap: 16px; }
+  .col-right { display: flex; flex-direction: column; gap: 16px; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px;
+  }
+  .card-title {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  /* ── Form elements ── */
+  label.field-label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    font-weight: 400;
+  }
+  input[type=number] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: 'DM Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    transition: border-color .15s;
+  }
+  input[type=number]:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: #fff;
+  }
+  select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A746E' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+  }
+  select:focus { outline: none; border-color: var(--accent); }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .iu   { display: grid; grid-template-columns: 1fr auto; gap: 6px; align-items: end; }
+  .iu select { width: 70px; }
+  .iu input  { margin-bottom: 0; }
+
+  /* ── Wall blocks ── */
+  .wall-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+  }
+  .wall-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .wall-num {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  .btn-remove {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0 2px;
+    transition: color .1s;
+  }
+  .btn-remove:hover { color: var(--danger); }
+  .btn-add {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1.5px dashed var(--border);
+    border-radius: 6px;
+    width: 100%;
+    padding: 9px;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    justify-content: center;
+    transition: border-color .15s, color .15s;
+    margin-top: 4px;
+  }
+  .btn-add:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Repeat type tabs ── */
+  .tab-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .tab-btn {
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    font-size: 13px;
+    cursor: pointer;
+    text-align: center;
+    color: var(--muted);
+    transition: all .15s;
+    font-family: 'Inter', sans-serif;
+  }
+  .tab-btn.active {
+    background: var(--text);
+    color: #fff;
+    border-color: var(--text);
+    font-weight: 500;
+  }
+
+  /* ── Calc button ── */
+  .calc-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: background .15s;
+    letter-spacing: -0.2px;
+  }
+  .calc-btn:hover { background: #A84B22; }
+  .calc-btn:active { transform: scale(.99); }
+
+  /* ── Result ── */
+  .result-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px;
+    display: none;
+    animation: fadeIn .2s ease;
+    grid-column: 1 / -1;
+  }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+
+  .result-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .rolls-display {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .rolls-num {
+    font-size: 48px;
+    font-weight: 600;
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .rolls-label {
+    font-size: 16px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .result-badge {
+    background: var(--info-l);
+    color: var(--info);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .walls-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .wall-chip {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .wall-chip strong { font-weight: 500; font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px; }
+  .wall-chip .strips-tag {
+    display: inline-block;
+    margin-top: 4px;
+    background: var(--accent-l);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  details {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  summary {
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    background: var(--bg);
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  summary::before { content: '▶'; font-size: 9px; transition: transform .15s; }
+  details[open] summary::before { transform: rotate(90deg); }
+  details pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    background: var(--surface);
+    padding: 12px 14px;
+    white-space: pre-wrap;
+    line-height: 1.7;
+    color: var(--text);
+    border-top: 1px solid var(--border);
+  }
+
+  .error {
+    color: var(--danger);
+    font-size: 12px;
+    min-height: 18px;
+    padding: 4px 0;
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 640px) {
+    .layout { grid-template-columns: 1fr; }
+    .col-right .result-card { grid-column: 1; }
+    .result-card { grid-column: 1; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🏠</div>
+  <div>
+    <h1>Калькулятор шпалер</h1>
+    <span>Straight Match · Half Drop · конвертація одиниць</span>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- LEFT: walls + roll params -->
+  <div class="col-left">
+
+    <div class="card">
+      <div class="card-title">Стінки</div>
+      <div id="wallsContainer"></div>
+      <button class="btn-add" onclick="addWall()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Додати стінку
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Параметри рулону</div>
+      <div class="row2">
+        <div>
+          <label class="field-label">Ширина рулону</label>
+          <div class="iu">
+            <input type="number" id="rollWidth" min="0" step="0.1" placeholder="21">
+            <select id="rollWidthUnit">
+              <option value="in">інч</option>
+              <option value="ft">фут</option>
+              <option value="cm">см</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="field-label">Довжина рулону</label>
+          <div class="iu">
+            <input type="number" id="rollLength" min="0" step="0.1" placeholder="33">
+            <select id="rollLengthUnit">
+              <option value="ft">фут</option>
+              <option value="in">інч</option>
+              <option value="m">метр</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: repeat + button -->
+  <div class="col-right">
+
+    <div class="card">
+      <div class="card-title">Репіт (раппорт)</div>
+      <div class="tab-group">
+        <button class="tab-btn active" id="tab-straight" onclick="setRepeatType('straight')">Straight Match</button>
+        <button class="tab-btn"        id="tab-halfdrop" onclick="setRepeatType('halfdrop')">Half Drop</button>
+      </div>
+      <label class="field-label">Розмір репіту (та ж одиниця що й ширина рулону)</label>
+      <input type="number" id="repeat" min="0" step="0.1" placeholder="0 — без репіту">
+    </div>
+
+    <div style="margin-top:12px">
+      <label class="field-label">Запас на відходи (%)</label>
+      <input type="number" id="waste" min="0" max="50" step="1" placeholder="15" value="15">
+    </div>
+
+    <div class="error" id="error"></div>
+    <button class="calc-btn" onclick="runCalc()">Розрахувати</button>
+
+  </div>
+
+  <!-- RESULT — full width -->
+  <div class="result-card" id="result">
+    <div class="result-top">
+      <div>
+        <div class="rolls-display">
+          <span class="rolls-num" id="rollsNum">0</span>
+          <span class="rolls-label" id="rollsLabel">рулонів</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px" id="stripsTotal"></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px" id="wasteInfo"></div>
+      </div>
+      <div id="typeBadge" class="result-badge"></div>
+    </div>
+
+    <div class="walls-grid" id="wallsGrid"></div>
+
+    <details>
+      <summary>Детальний розкрій</summary>
+      <pre id="detailPre"></pre>
+    </details>
+  </div>
+
+</div>
+
+<script>
+var wallCount = 0;
+var wallIds   = [];
+var repeatType = 'straight';
+
+function toIn(v, unit) {
+  if (unit==='in') return v;
+  if (unit==='ft') return v*12;
+  if (unit==='cm') return v/2.54;
+  if (unit==='m')  return v*39.3701;
+  return v;
+}
+function fromIn(v, unit) {
+  if (unit==='in') return v;
+  if (unit==='ft') return v/12;
+  if (unit==='cm') return v*2.54;
+  if (unit==='m')  return v/39.3701;
+  return v;
+}
+function r1(v){ return Math.round(v*10)/10; }
+function r2(v){ return Math.round(v*100)/100; }
+
+function setRepeatType(t) {
+  repeatType = t;
+  document.getElementById('tab-straight').classList.toggle('active', t==='straight');
+  document.getElementById('tab-halfdrop').classList.toggle('active', t==='halfdrop');
+}
+
+function addWall() {
+  wallCount++;
+  var id = wallCount;
+  wallIds.push(id);
+  var div = document.createElement('div');
+  div.className = 'wall-block';
+  div.id = 'wall-' + id;
+  div.innerHTML =
+    '<div class="wall-header">' +
+      '<span class="wall-num">Стінка ' + id + '</span>' +
+      '<button class="btn-remove" onclick="removeWall('+id+')" title="Видалити">×</button>' +
+    '</div>' +
+    '<div class="row2">' +
+      '<div>' +
+        '<label class="field-label">Ширина</label>' +
+        '<div class="iu">' +
+          '<input type="number" id="w'+id+'_w" min="0" step="0.1" placeholder="ширина">' +
+          '<select id="w'+id+'_wu" data-prev="in" onchange="convertField(\'w'+id+'_w\',this)">' +
+            '<option value="in">інч</option>' +
+            '<option value="ft">фут</option>' +
+          '</select>' +
+        '</div>' +
+      '</div>' +
+      '<div>' +
+        '<label class="field-label">Висота</label>' +
+        '<div class="iu">' +
+          '<input type="number" id="w'+id+'_h" min="0" step="0.1" placeholder="висота">' +
+          '<select id="w'+id+'_hu" data-prev="in" onchange="convertField(\'w'+id+'_h\',this)">' +
+            '<option value="in">інч</option>' +
+            '<option value="ft">фут</option>' +
+          '</select>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  document.getElementById('wallsContainer').appendChild(div);
+}
+
+function removeWall(id) {
+  var el = document.getElementById('wall-'+id);
+  if (el) el.remove();
+  wallIds = wallIds.filter(function(x){return x!==id;});
+}
+
+function convertField(inputId, sel) {
+  var inp  = document.getElementById(inputId);
+  var val  = parseFloat(inp.value);
+  var prev = sel.dataset.prev;
+  var next = sel.value;
+  if (val && prev && prev!==next) inp.value = r2(fromIn(toIn(val,prev),next));
+  sel.dataset.prev = next;
+}
+
+function plural(n,one,few,many){
+  var m=n%10,c=n%100;
+  if(m===1&&c!==11) return one;
+  if(m>=2&&m<=4&&(c<10||c>=20)) return few;
+  return many;
+}
+
+function runCalc() {
+  document.getElementById('error').textContent = '';
+  document.getElementById('result').style.display = 'none';
+
+  var rwRaw = parseFloat(document.getElementById('rollWidth').value);
+  var rlRaw = parseFloat(document.getElementById('rollLength').value);
+  if (!rwRaw||!rlRaw) { document.getElementById('error').textContent='Вкажіть параметри рулону.'; return; }
+
+  var rollWidth  = toIn(rwRaw,  document.getElementById('rollWidthUnit').value);
+  var rollLength = toIn(rlRaw,  document.getElementById('rollLengthUnit').value);
+
+  // repeat завжди в інчах — конвертуємо з тієї ж одиниці що й ширина рулону
+  var repeatRaw  = parseFloat(document.getElementById('repeat').value)||0;
+  var repeat     = toIn(repeatRaw, document.getElementById('rollWidthUnit').value);
+
+  var wastePct   = parseFloat(document.getElementById('waste').value)||0;
+  if (wastePct < 0 || wastePct > 50) { document.getElementById('error').textContent='Запас має бути від 0 до 50%.'; return; }
+
+  var walls=[];
+  wallIds.forEach(function(id){
+    if (!document.getElementById('wall-'+id)) return;
+    var wRaw=document.getElementById('w'+id+'_w').value;
+    var hRaw=document.getElementById('w'+id+'_h').value;
+    var wUnit=document.getElementById('w'+id+'_wu').value;
+    var hUnit=document.getElementById('w'+id+'_hu').value;
+    if (parseFloat(wRaw)>0&&parseFloat(hRaw)>0)
+      walls.push({index:id, width:toIn(parseFloat(wRaw),wUnit), height:toIn(parseFloat(hRaw),hUnit),
+                  wRaw:wRaw, hRaw:hRaw, wUnit:wUnit, hUnit:hUnit});
+  });
+
+  if (!walls.length) { document.getElementById('error').textContent='Додайте хоча б одну стінку.'; return; }
+
+  var res = repeatType==='straight'
+    ? calcStraight(walls,rollWidth,rollLength,repeat)
+    : calcHalfDrop(walls,rollWidth,rollLength,repeat);
+
+  // Застосовуємо waste: ceil(rawRolls * (1 + waste/100))
+  var rawRolls   = res.rolls;
+  var finalRolls = Math.ceil(rawRolls * (1 + wastePct / 100));
+
+  // Walls grid
+  var grid='';
+  walls.forEach(function(w){
+    var strips=Math.ceil(w.width/rollWidth);
+    grid+='<div class="wall-chip">' +
+      '<strong>Стінка '+w.index+'</strong>' +
+      w.wRaw+' '+w.wUnit+' × '+w.hRaw+' '+w.hUnit+'<br>' +
+      '<span style="font-size:11px;color:var(--muted)">'+r1(w.width)+'" × '+r1(w.height)+'"</span>' +
+      '<div><span class="strips-tag">'+strips+' смуг</span></div>' +
+    '</div>';
+  });
+
+  document.getElementById('rollsNum').textContent   = finalRolls;
+  document.getElementById('rollsLabel').textContent = plural(finalRolls,'рулон','рулони','рулонів');
+  document.getElementById('stripsTotal').textContent = res.totalStrips+' смуг всього';
+  document.getElementById('wasteInfo').textContent   =
+    wastePct > 0
+      ? 'Без запасу: '+rawRolls+' рул. → +'+wastePct+'% відходів → '+finalRolls+' рул.'
+      : 'Запас не враховано';
+  document.getElementById('typeBadge').textContent  = repeatType==='straight'?'Straight Match':'Half Drop';
+  document.getElementById('wallsGrid').innerHTML    = grid;
+  document.getElementById('detailPre').textContent  = res.details;
+  document.getElementById('result').style.display   = 'block';
+}
+
+/* ── STRAIGHT ── */
+function calcStraight(walls,rollWidth,rollLength,repeat){
+  var lines=[], totalStrips=0;
+  var ppr = repeat>0 ? Math.floor(rollLength/repeat) : null;
+
+  lines.push('── Straight Match ──');
+  if(repeat>0) lines.push('Патернів у рулоні: floor('+r1(rollLength)+' / '+repeat+') = '+ppr);
+  lines.push('');
+
+  var allStrips=[];
+  walls.forEach(function(w){
+    var strips=Math.ceil(w.width/rollWidth);
+    totalStrips+=strips;
+    var pps=repeat>0?Math.ceil(w.height/repeat):null;
+    if(repeat>0)
+      lines.push('Стінка '+w.index+': висота '+r1(w.height)+'" / '+repeat+'" = ceil → '+pps+' патернів у смузі  ('+strips+' смуг)');
+    else
+      lines.push('Стінка '+w.index+': висота '+r1(w.height)+'"  ('+strips+' смуг, без репіту)');
+    for(var s=0;s<strips;s++) allStrips.push({wall:w.index,num:s+1,pps:pps,height:w.height});
+  });
+
+  lines.push(''); lines.push('── Розкрій по рулонах ──');
+  var rolls=0,remP=0,remI=0,cur=0,log=[];
+  allStrips.forEach(function(s){
+    if(repeat>0){
+      if(remP<s.pps){
+        if(rolls>0) log.push('  Рулон '+rolls+': '+cur+' смуг, залишок '+remP+' патернів');
+        rolls++; remP=ppr; cur=0;
+      }
+      remP-=s.pps; cur++;
+      log.push('  Стінка '+s.wall+' смуга '+s.num+': −'+s.pps+' патернів, залишок '+remP);
+    } else {
+      if(remI<s.height){
+        if(rolls>0) log.push('  Рулон '+rolls+': '+cur+' смуг, залишок '+r1(remI)+'"');
+        rolls++; remI=rollLength; cur=0;
+      }
+      remI-=s.height; cur++;
+      log.push('  Стінка '+s.wall+' смуга '+s.num+': −'+r1(s.height)+'", залишок '+r1(remI)+'"');
+    }
+  });
+  if(rolls>0){
+    if(repeat>0) log.push('  Рулон '+rolls+': '+cur+' смуг, залишок '+remP+' патернів');
+    else log.push('  Рулон '+rolls+': '+cur+' смуг, залишок '+r1(remI)+'"');
+  }
+  log.forEach(function(l){lines.push(l);});
+  lines.push(''); lines.push('━━━━━━━━━━━━━━━━━━━');
+  lines.push('Рулонів потрібно: '+rolls);
+  return{rolls:rolls,totalStrips:totalStrips,details:lines.join('\n')};
+}
+
+/* ── HALF DROP ── */
+function calcHalfDrop(walls,rollWidth,rollLength,repeat){
+  var lines=[],totalStrips=0;
+  lines.push('── Half Drop ──');
+  lines.push('Непарні смуги: висота стінки');
+  lines.push('Парні смуги:   висота стінки + '+repeat+'"');
+  lines.push('');
+
+  var allStrips=[];
+  walls.forEach(function(w){
+    var strips=Math.ceil(w.width/rollWidth);
+    totalStrips+=strips;
+    for(var s=0;s<strips;s++){
+      var gi=allStrips.length+1;
+      var isOdd=gi%2===1;
+      var len=isOdd?w.height:w.height+repeat;
+      allStrips.push({wall:w.index,num:s+1,gi:gi,isOdd:isOdd,len:len,wallH:w.height});
+    }
+  });
+
+  lines.push('Довжини смуг:');
+  allStrips.forEach(function(s){
+    lines.push('  #'+s.gi+' (стінка '+s.wall+', смуга '+s.num+'): '+
+      r1(s.wallH)+'"'+(s.isOdd?'':' + '+repeat+'"')+' → '+r1(s.len)+'"');
+  });
+
+  lines.push(''); lines.push('── Розкрій по рулонах ──');
+  var rolls=0,rem=0,cur=0,log=[];
+  allStrips.forEach(function(s){
+    if(rem<s.len){
+      if(rolls>0) log.push('  Рулон '+rolls+': '+cur+' смуг, залишок '+r1(rem)+'"');
+      rolls++; rem=rollLength; cur=0;
+    }
+    rem-=s.len; cur++;
+    log.push('  #'+s.gi+' стінка '+s.wall+' смуга '+s.num+' ('+r1(s.len)+'"): залишок '+r1(rem)+'"');
+  });
+  if(rolls>0) log.push('  Рулон '+rolls+': '+cur+' смуг, залишок '+r1(rem)+'"');
+  log.forEach(function(l){lines.push(l);});
+  lines.push(''); lines.push('━━━━━━━━━━━━━━━━━━━');
+  lines.push('Рулонів потрібно: '+rolls);
+  return{rolls:rolls,totalStrips:totalStrips,details:lines.join('\n')};
+}
+
+addWall(); addWall(); addWall(); addWall();
+</script>
+</body>
+</html>
